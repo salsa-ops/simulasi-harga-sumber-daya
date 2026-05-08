@@ -203,7 +203,7 @@ st.divider()
 st.header("⚖️ Mekanisme Struktur Pasar & Evaluasi Hotelling")
 
 # Slider diletakkan di sini agar dekat dengan grafiknya
-r_eval = st.slider("Tingkat Bunga Diskonto (%)", 1, 15, 5, key="slider_hotelling_final")
+r_eval = tingkat_bunga  # Mengambil nilai dari slider yang sudah ada di sidebar
 
 market_type = st.radio(
     "Pilih Perspektif Struktur Pasar (Grafik akan Berubah Secara Matematis):",
