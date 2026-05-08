@@ -127,7 +127,7 @@ data["Ekstraksi"] = (
 data["Ekstraksi"] = data["Ekstraksi"].fillna(0)
 
 data["Race_to_Extract"] = (
-    data["Ekstraksi"] * (1 + pajak_karbon/100)
+    data["Ekstraksi"] * (1 + pajak_karbon+ tingkat_bunga/100)
 )
 
 st.write("Simulasi Percepatan Ekstraksi")
