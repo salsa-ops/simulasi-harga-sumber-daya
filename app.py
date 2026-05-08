@@ -92,11 +92,6 @@ st.divider()
 st.subheader("Simulasi Hotelling Rule (Model Dasar)")
 
 # Gunakan key unik agar tidak bentrok dengan slider di bawah
-r_dasar = st.slider(
-    "Masukkan tingkat bunga dasar (%)", 
-    1, 15, 5, 
-    key="slider_hotelling_dasar"
-)
 
 harga_awal = data["Harga_Emas"][0]
 data["Hotelling_Price_Dasar"] = [
@@ -124,13 +119,6 @@ Penyimpangan ini akan dibahas lebih mendalam pada bagian Mekanisme Pasar di bawa
 # =========================
 
 st.subheader("Simulasi Green Paradox")
-
-pajak_karbon = st.slider(
-    "Prediksi Pajak Karbon Masa Depan (%)",
-    min_value=0,
-    max_value=100,
-    value=20
-)
 
 data["Ekstraksi"] = (
     data["Stock_Emas"].shift(1) - data["Stock_Emas"]
