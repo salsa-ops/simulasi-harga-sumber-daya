@@ -176,7 +176,7 @@ tek_index = st.slider("Kemajuan Teknologi Ekstraksi (%)", 0, 100, 20)
 total_sumber_daya = 1000000
 # Reserve berubah berdasarkan Harga DAN Teknologi
 data["Resource"] = total_sumber_daya
-data["Reserve"] = (data["Harga_Emas"] / data["Harga_Emas"].max()) * (total_sumber_daya * 0.7) * (1 + tek_index/100)
+data["Reserve"] = (data["Harga_Emas"] / data["Harga_Emas"].max()) * (total_sumber_daya * 0.7) * (1 + (tek_index - tingkat_bunga - pajak_karbon)/100)
 data["Reserve"] = data["Reserve"].clip(upper=total_sumber_daya) 
 
 fig_res, ax_res = plt.subplots()
