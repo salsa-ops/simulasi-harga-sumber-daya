@@ -95,7 +95,7 @@ st.subheader("Simulasi Hotelling Rule (Model Dasar)")
 
 harga_awal = data["Harga_Emas"][0]
 data["Hotelling_Price_Dasar"] = [
-    harga_awal * ((1 + r_dasar/100) ** i) 
+    harga_awal * ((1 + tingkat_bunga/100) ** i) 
     for i in range(len(data))
 ]
 
@@ -197,64 +197,49 @@ st.header("Mekanisme Struktur Pasar & Evaluasi Hotelling")
 r_eval = st.slider("Tingkat Bunga Diskonto (%)", 1, 15, 5, key="slider_hotelling_final")
 
 # ==========================================
-# BAB IV: EVALUASI HOTELLING & STRUKTUR PASAR
+# BAB IV: MEKANISME PASAR & EVALUASI HOTELLING
 # ==========================================
 st.divider()
-st.header("Mekanisme Pasar & Evaluasi Hotelling")
+st.header("⚖️ Mekanisme Struktur Pasar & Evaluasi Hotelling")
+
+# Slider diletakkan di sini agar dekat dengan grafiknya
+r_eval = st.slider("Tingkat Bunga Diskonto (%)", 1, 15, 5, key="slider_hotelling_final")
 
 market_type = st.radio(
     "Pilih Perspektif Struktur Pasar (Grafik akan Berubah Secara Matematis):",
     ["Persaingan Sempurna", "Oligopoli", "Monopoli Lokal"],
-    key="market_final"
+    key="market_final",
+    horizontal=True
 )
 
-harga_awal = data["Harga_Emas"][0]
+harga_awal = data["Harga_Emas"].iloc[0]
 
-# Logika Matematis yang mengubah angka grafik 
+# LOGIKA PERUBAHAN MATEMATIS (Disatukan agar tidak dobel hitung)
 if market_type == "Persaingan Sempurna":
-    data["Hotelling_Price"] = [harga_awal * ((1 + r_eval/100) ** i) for i in range(len(data))]
-    st.info("Analisis: Jalur harga mendekati kondisi efisiensi alokasi intertemporal.")
-elif market_type == "Oligopoli":
-    # r lebih rendah karena produsen menahan stok
-    data["Hotelling_Price"] = [harga_awal * ((1 + (r_eval*0.6)/100) ** i) for i in range(len(data))]
-    st.warning("Analisis: Produsen cenderung menahan produksi untuk menjaga kelangkaan harga.")
-else:
-    # r lebih tinggi karena percepatan ekstraksi (Race to Extract)
-    data["Hotelling_Price"] = [harga_awal * ((1 + (r_eval*1.5)/100) ** i) for i in range(len(data))]
-    st.error("Analisis: Terjadi distorsi akibat risiko regulasi masa depan (Race to Extract).")
-
-fig_h, ax_h = plt.subplots()
-ax_h.plot(data["Tahun"], data["Harga_Emas"], marker='o', label="Harga Aktual")
-ax_h.plot(data["Tahun"], data["Hotelling_Price"], ls='--', label=f"Prediksi {market_type}", color="red")
-ax_h.set_title(f"Uji Hotelling: {market_type}")
-ax_h.legend()
-st.pyplot(fig_h)
-
-# Perhitungan Data Dasar
-harga_awal = data["Harga_Emas"][0]
-
-# LOGIKA PERUBAHAN MATEMATIS (Ini yang mengubah bentuk grafik)
-if market_type == "Persaingan Sempurna":
-    # Model Hotelling Murni: dP/dt = r
-    data["Hotelling_Price"] = [harga_awal * ((1 + r_eval/100) ** i) for i in range(len(data))]
+    r_adj = r_eval / 100
     label_plot = "Prediksi Hotelling (Efisien)"
-    color_plot = "red"
+    color_plot = "green"
+    analisis_teks = "**Analisis:** Jalur harga mendekati kondisi efisiensi alokasi intertemporal sesuai teori dasar."
+    st.info(analisis_teks)
     
 elif market_type == "Oligopoli":
-    # Dalam Oligopoli, harga tumbuh lebih lambat karena kontrol pasokan (r-distorsi)
-    r_distorsi = r_eval * 0.6 
-    data["Hotelling_Price"] = [harga_awal * ((1 + r_distorsi/100) ** i) for i in range(len(data))]
+    r_adj = (r_eval * 0.6) / 100
     label_plot = "Prediksi Oligopoli (Harga Tertahan)"
     color_plot = "orange"
+    analisis_teks = "**Analisis Kritis:** Grafik menunjukkan bahwa pertumbuhan harga riil lebih lambat karena adanya kontrol volume oleh produsen besar."
+    st.warning(analisis_teks)
 
-else:
-    # Monopoli dengan risiko masa depan: Percepatan ekstraksi membuat harga 'shadow' melonjak
-    r_percepatan = r_eval * 1.5
-    data["Hotelling_Price"] = [harga_awal * ((1 + r_percepatan/100) ** i) for i in range(len(data))]
+else: # Monopoli Lokal
+    r_adj = (r_eval * 1.5) / 100
     label_plot = "Prediksi Monopoli (Race to Extract)"
     color_plot = "darkred"
+    analisis_teks = "**Analisis Kritis:** Kurva yang lebih curam menunjukkan ekspektasi pengurasan cepat (Race to Extract). Produsen mengabaikan nilai masa depan demi profit jangka pendek."
+    st.error(analisis_teks)
 
-# PEMBUATAN GRAFIK TUNGGAL YANG DINAMIS (MENGGANTIKAN FIG_H DAN FIG_EVAL)
+# Perhitungan Data
+data["Hotelling_Price"] = [harga_awal * ((1 + r_adj) ** i) for i in range(len(data))]
+
+# PEMBUATAN GRAFIK TUNGGAL YANG DINAMIS
 fig_final, ax_final = plt.subplots(figsize=(10, 5))
 ax_final.plot(data["Tahun"], data["Harga_Emas"], marker='o', label="Harga Aktual", color="blue", linewidth=2)
 ax_final.plot(data["Tahun"], data["Hotelling_Price"], ls='--', label=label_plot, color=color_plot, linewidth=2)
@@ -263,22 +248,16 @@ ax_final.set_title(f"Evaluasi Jalur Harga Intertemporal: {market_type}")
 ax_final.set_xlabel("Tahun")
 ax_final.set_ylabel("Harga (USD)")
 ax_final.legend()
-st.pyplot(fig_final)
 
-# Analisis Kritis terpadu
-if market_type == "Persaingan Sempurna":
-    st.info("**Analisis:** Jalur harga mendekati kondisi efisiensi alokasi intertemporal sesuai teori dasar.")
-elif market_type == "Oligopoli":
-    st.warning("**Analisis Kritis:** Grafik menunjukkan bahwa dalam struktur Oligopoli, pertumbuhan harga riil lebih lambat dibanding teori karena adanya kontrol volume oleh produsen besar.")
-else: # Monopoli Lokal
-    st.error("**Analisis Kritis:** Kurva yang lebih curam menunjukkan ekspektasi pengurasan cepat (Race to Extract). Produsen mengabaikan nilai masa depan demi profit jangka pendek sebelum regulasi lingkungan berlaku.")
+# Menampilkan grafik dengan ukuran proporsional
+st.pyplot(fig_final)
 
 # ==========================================
 # BAB V: KESIMPULAN & REKOMENDASI
 # ==========================================
 st.divider()
-st.header("Kesimpulan & Rekomendasi Kebijakan")
+st.header("📌 Kesimpulan & Rekomendasi Kebijakan")
 st.success("""
-1. **Kesimpulan:** Alokasi intertemporal emas tidak hanya dipengaruhi oleh kelangkaan, tapi sangat bergantung pada struktur pasar dan kebijakan lingkungan.
-2. **Rekomendasi:** Diperlukan regulasi yang stabil untuk memitigasi dampak Green Paradox agar ekstraksi tetap berada pada jalur berkelanjutan.
+1. **Kesimpulan:** Alokasi intertemporal emas sangat bergantung pada struktur pasar dan kebijakan lingkungan.
+2. **Rekomendasi:** Diperlukan regulasi yang stabil untuk memitigasi dampak Green Paradox agar ekstraksi tetap berkelanjutan.
 """)
