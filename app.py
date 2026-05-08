@@ -3,13 +3,24 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # =========================
-# JUDUL
+# LOAD DATA
 # =========================
+
+data = pd.read_csv("data_emas.csv")
+
+# =========================
+# BAGIAN 1 & 2: SIDEBAR & KONFIGURASI
+# =========================
+
+# Pindahkan slider ke Sidebar (saran Point 2)
+st.sidebar.header("⚙️ Pengaturan Parameter")
+tingkat_bunga = st.sidebar.slider("Pilih Tingkat Bunga (%)", 0, 20, 5)
+pajak_karbon = st.sidebar.slider("Pajak Karbon Masa Depan (%)", 0, 50, 10)
 
 # ==========================================
 # BAB I & II: PENDAHULUAN & LANDASAN TEORI
 # ==========================================
-st.title("Analisis Intertemporal Sumber Daya Emas")
+st.title("🏆 Analisis Intertemporal Sumber Daya Emas")
 st.write("Project Ekonomi SDA dan Lingkungan")
 
 st.info("""
@@ -17,11 +28,25 @@ st.info("""
 Emas bukan sekadar komoditas fisik, tetapi cerminan nilai yang muncul dari preferensi manusia terhadap keindahan dan keamanan aset (*Safe Haven*). 
 Nilai ini memengaruhi cara kita mengevaluasi risiko masa depan dan memutuskan kapan waktu terbaik untuk melakukan ekstraksi.
 """)
-# =========================
-# LOAD DATA
-# =========================
 
-data = pd.read_csv("data_emas.csv")
+# =========================
+# BAGIAN 3: METRICS (Saran Point 1)
+# =========================
+# Kita letakkan Metrics di bawah teori agar menjadi jembatan ke data
+st.subheader("Kondisi Pasar Saat Ini")
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    # Mengambil data terakhir dari file CSV kamu
+    st.metric("Harga Emas Saat Ini", f"${data['Harga_Emas'].iloc[-1]}", "Stable")
+
+with col2:
+    st.metric("Total Cadangan", "801,473 Kg", "-0.4%")
+
+with col3:
+    st.metric("Status Kelangkaan", "High Alert", "Critical", delta_color="inverse")
+
+st.markdown("---")
 
 # =========================
 # TAMPILKAN DATA
